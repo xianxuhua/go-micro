@@ -27,9 +27,9 @@ go build -o gen_yaml main.go
 
 作用：生成前后端接口定义、URL定义
 
-![img.png](img.png)
+![img.png](https://github.com/xianxuhua/go-micro/blob/master/resources/Xnip2022-10-31_15-53-21.jpg)
 
-![img_1.png](img_1.png)
+![img.png](https://github.com/xianxuhua/go-micro/blob/master/resources/Xnip2022-10-31_15-53-31.jpg)
 
 根据定义的微服务自行添加到gen.sh
 ```
