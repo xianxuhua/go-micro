@@ -1,4 +1,4 @@
-### gin + grpc + protobuf + nuxt + typescript
+### gin + grpc + grpc-gateway + protobuf + nuxt3 + typescript
 来源于ccmouse老师
 
 无需接口硬编码
@@ -27,13 +27,42 @@ go build -o gen_yaml main.go
 
 作用：生成前后端接口定义、URL定义
 
+![img.png](img.png)
+
+![img_1.png](img_1.png)
+
 根据定义的微服务自行添加到gen.sh
 ```
 genProto auth
+genProto ...
 ```
-5.nuxt安装
+6.生成rsa密钥
+https://cryptotools.net/rsagen
+替换public.key和private.key
+
+7.nuxt安装
 ```
 cd nuxt-app
 yarn install
 yarn dev
 ```
+8.nuxt+nginx部署
+
+```
+nuxt generate
+```
+修改/etc/nginx/sites-enabled/default
+```
+root   xxx/nuxt-app/.output/public/;
+```
+修改 /etc/nginx/mime.types
+```
+application/javascript                           js;
+```
+为
+```
+application/javascript                           js mjs;
+```
+nginx -s reload
+
+9.TODO: docker部署
