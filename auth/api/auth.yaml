@@ -1,0 +1,7 @@
+config_version: google.api.Service
+http:
+    rules:
+        - body: '*'
+          post: /auth/Login
+          selector: auth.AuthService.Login
+type: 3
