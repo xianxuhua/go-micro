@@ -6,7 +6,4 @@ export default defineNuxtConfig({
             reactivityTransform: true
         }
     },
-    typescript: {
-        strict: true
-    }
 })

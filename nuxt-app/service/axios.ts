@@ -1,17 +1,17 @@
 import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from "axios";
-import {authUrl} from "~/service/proto_gen/auth/auth_url";
 
 
-let token = useCookie("token")
 const API = axios.create({
     baseURL: "http://localhost:8080",
 })
 API.interceptors.request.use((config: AxiosRequestConfig) => {
+    let token = useCookie("token")
+    const router = useRouter()
     config.url = config.baseURL! + config.url!
-    if (!token.value && config.url !== config.baseURL+authUrl.Login) {
-        location.href = "/"
+    if (!token.value && !router.currentRoute.value.path.startsWith("/login")) {
+        location.href = "/login"
     }
-    if (config.url !== config.baseURL+authUrl.Login) {
+    if (!router.currentRoute.value.path.startsWith("/login")) {
         config.headers!["authorization"] = "Bearer " + token.value
     }
     return config
@@ -29,11 +29,18 @@ let throttle = (fn: () => void, delay: number) => {
     }
 }
 let netWorkFail = throttle(
-     () => {
-         alert("网络连接失败，请检查网络！")
+    () => {
+        alert("网络连接失败，请检查网络！")
     },
     1000
-);
+)
+
+let serverError = throttle(
+    () => {
+        alert("服务器出错！")
+    },
+    1000
+)
 
 const getErrMessage = (data: any): string => {
     if (data.message != null) {
@@ -45,8 +52,10 @@ const getErrMessage = (data: any): string => {
 API.interceptors.response.use((config: AxiosResponse) => {
     return config
 }, (err: AxiosError) => {
-    if (err.response!.status === 0 || err.response!.status >= 500){
+    if (err.response!.status === 0){
         netWorkFail()
+    } else if (err.response!.status >= 500) {
+        serverError()
     } else {
         let message = ""
         switch (err.response!.status) {
