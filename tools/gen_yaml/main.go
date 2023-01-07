@@ -47,10 +47,8 @@ func writeConfigFile(config GatewayConfig, path string) {
 }
 
 func writeTsUrl(targetPath, packageName string, methods []string) {
-	file, err := os.Create(targetPath + "/" + packageName + "_url.ts")
-	if err != nil {
-		panic(err)
-	}
+	os.Mkdir(targetPath, 0755)
+	file, _ := os.Create(targetPath + "/" + packageName + "_url.ts")
 	defer file.Close()
 	s := `export namespace ` + packageName + "Url {\n"
 	for _, m := range methods {
