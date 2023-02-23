@@ -10,6 +10,7 @@ import (
 	"log"
 	authpb "micro/auth/api/gen"
 	"micro/middleware"
+	"net/http"
 )
 
 func main() {
@@ -46,7 +47,7 @@ func main() {
 	//engine.Use(middleware.Auth())
 	engine.Use(middleware.Cors())
 	engine.POST("/*method", gin.WrapH(mux))
-	engine.GET("/*method", gin.WrapH(mux))
+	engine.StaticFS("/swagger-ui/", http.Dir("./swagger-ui"))
 
 	err := engine.Run("0.0.0.0:8080")
 	if err != nil {

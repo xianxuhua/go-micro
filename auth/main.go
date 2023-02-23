@@ -1,37 +1,53 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"io"
-	"log"
 	authpb "micro/auth/api/gen"
 	"micro/auth/auth"
 	"micro/auth/dao"
 	"micro/auth/pwd"
 	"micro/auth/token"
+	"micro/shared/addr"
 	"net"
 	"os"
 	"time"
 )
 
+var port = flag.Int("port", 8888, "")
+var debug = flag.Bool("debug", false, "")
+var dsn = flag.String("dsn", "root:123456@tcp(127.0.0.1:3306)/safe_calc?charset=utf8", "")
+
 func main() {
-	lis, err := net.Listen("tcp", ":8888")
-	if err != nil {
-		log.Fatal(err)
-	}
-	server := grpc.NewServer()
-	db, err := sqlx.Connect("mysql", "root:123456@tcp(127.0.0.1:3306)/micro?charset=utf8")
-	if err != nil {
-		panic(err)
-	}
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		panic(err)
 	}
+	if *debug == false {
+		freePort, err := addr.FreePort()
+		if err != nil {
+			logger.Fatal("cannot get free port", zap.Error(err))
+		}
+		*port = freePort
+	}
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	if err != nil {
+		logger.Fatal("", zap.Error(err))
+	}
+
+	server := grpc.NewServer()
+	db, err := sqlx.Connect("mysql", *dsn)
+	if err != nil {
+		logger.Fatal("", zap.Error(err))
+	}
+
 	pkFile, err := os.Open("auth/private.key")
 	if err != nil {
 		logger.Fatal("can not open private.key", zap.Error(err))
@@ -64,6 +80,6 @@ func main() {
 	})
 	err = server.Serve(lis)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal("cannot listen server", zap.Error(err))
 	}
 }
